@@ -1,12 +1,16 @@
 import {bootstrap} from '@angular/platform-browser-dynamic';
-import {Component, Pipe, PipeTransform} from '@angular/core';
+import {Component} from '@angular/core';
 import {NgFor} from '@angular/common';
+import {DecisionList} from './decisionList';
+import {AhpMethod} from './ahpMethod';
 
 
 @Component({
   selector: 'app',
+  directives: [DecisionList, AhpMethod],
   template: `
-    <h1>Test</h1>
+    <decision-list></decision-list>
+    <ahp-method></ahp-method>
   `
 })
 
