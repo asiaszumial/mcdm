@@ -6,8 +6,8 @@ export class DecisionService {
     decisions = [
         {name: "Elektrownia wiatrowa",
             config: {
-                criterias: ["Koszty eksploatacji i utrzymania", "Zagospodarowanie terenu", "Infrastruktura", "Koszt inwestycji"],
-                alternatives: ["La Braguia", "Cilda", "San Pedro", "Estacas"]
+                criterias: ["Koszty", "Zagospodarowanie terenu", "Infrastruktura"],
+                alternatives: ["La Braguia", "Estacas"]
             }},
         {name: "Elektrownia wodna",
             config: {

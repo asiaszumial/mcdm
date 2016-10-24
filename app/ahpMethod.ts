@@ -23,7 +23,7 @@ import {AhpResult} from './ahpResult';
     <div class="col-lg-8 col-md-8 col-sm-12">
         <div [hidden]="currentPart != 0">
             <div *ngIf="!viewIsValid">Obliczenie wyniku jest niemożliwe, ponieważ nie wprowadzono wszystkich danych</div>
-            <div *ngIf="!viewIsValid">
+            <div>
                 <ahp-result [viewIsValid]="viewIsValid" [config]="config" [criteriaEvaluation]="criteriaEvaluation" [alternativeEvaluation]="alternativeEvaluation"></ahp-result>
             </div>
         </div>

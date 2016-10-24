@@ -7,6 +7,7 @@ import {NgFor, NgIf} from '@angular/common';
     <div class="panel panel-default">
         <div class="panel-heading">Wynik</div>
         <div class="panel-body">
+            <h4 *ngIf="isInconsistent">Podane dane są sprzeczne, obliczony wynik może nie być poprawny</h4>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -16,10 +17,14 @@ import {NgFor, NgIf} from '@angular/common';
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let a of config.alternatives">
+                    <tr *ngFor="let a of config.alternatives; let i = index;">
                         <td>{{a}}</td>
-                        <td *ngFor="let c of config.criterias"></td>
-                        <td></td>
+                        <td *ngFor="let c of config.criterias; let j = index;">
+                            <span *ngIf="resultCalculated">{{resultMatrix[i][j]}}</span>
+                        </td>
+                        <td>
+                            <span *ngIf="resultCalculated">{{resultMatrix[i][config.criterias.length]}}</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -31,6 +36,7 @@ import {NgFor, NgIf} from '@angular/common';
 export class AhpResult {
     @Input()
     set viewIsValid(valid: boolean) {
+        console.log("viewIsValid ", valid);
         this.isValid = valid;
         if (valid) {
             this.calculate();
@@ -40,11 +46,49 @@ export class AhpResult {
     @Input() criteriaEvaluation;
     @Input() alternativeEvaluation;
     isValid;
+    isInconsistent;
+    resultCalculated;
+    resultMatrix = [];
 
   constructor() {
   }
 
   calculate() {
+      var matrix = [];
 
+      var criteriaList = this.config.criterias;
+      var criteriaMatrix = [];
+      for (var i = 0; i < criteriaList.length; i++) {
+          var row = [];
+          for(var j = 0; j < criteriaList.length; j++) {
+              var criteria1 = criteriaList[i];
+              var criteria2 = criteriaList[j];
+              if (criteria1 == criteria2) {
+                  row.push(1);
+              } else {
+                  var criteriaEvalRow = this.criteriaEvaluation.find(item => {
+                      return item.c1 === criteria1 && item.c2 === criteria2;
+                  });
+
+                  if (criteriaEvalRow != undefined && criteriaEvalRow != null) {
+                      row.push(criteriaEvalRow.val);
+                  } else {
+                      var criteriaEvalRow2 = this.criteriaEvaluation.find(item => {
+                          return item.c1 === criteria2 && item.c2 === criteria1;
+                      });
+                      if (criteriaEvalRow2 != undefined && criteriaEvalRow2 != null) {
+                          var cVal = 1 / criteriaEvalRow2.val;
+                          if (criteriaEvalRow2.val < 1) {
+                              cVal = Math.floor(1 / criteriaEvalRow2.val);
+                          }
+                          row.push(cVal);
+                      }
+                  }
+              }
+          }
+          criteriaMatrix.push(row);
+      }
+      console.log("this.criteriaEvaluation", this.criteriaEvaluation);
+      console.log("criteriaMatrix ", criteriaMatrix);
   }
 }
