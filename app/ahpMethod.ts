@@ -1,14 +1,15 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, EventEmitter} from '@angular/core';
 import {NgFor, NgIf} from '@angular/common';
 import {DecisionService} from './decisionService';
 import {AhpEval} from './ahpEval';
+import {AhpResult} from './ahpResult';
 
 @Component({
   selector: 'ahp-method',
   providers: [DecisionService],
-  directives: [AhpEval],
+  directives: [AhpEval, AhpResult],
   template: `
-    <div style="width: 300px; display: inline-block;">
+    <div class="col-lg-4 col-md-4 col-sm-12">
         <ul class="list-group">
             <li class="list-group-item" (click)="showGoal()" [class.active]="currentPart == 0">Wynik</li>
             <li class="list-group-item" (click)="showCriterias()" [class.active]="currentPart == 1">
@@ -19,10 +20,12 @@ import {AhpEval} from './ahpEval';
             </li>
         </ul>
     </div>
-    <div style="display: inline-block;">
+    <div class="col-lg-8 col-md-8 col-sm-12">
         <div [hidden]="currentPart != 0">
             <div *ngIf="!viewIsValid">Obliczenie wyniku jest niemożliwe, ponieważ nie wprowadzono wszystkich danych</div>
-            <div *ngIf="!viewIsValid"></div>
+            <div *ngIf="!viewIsValid">
+                <ahp-result [viewIsValid]="viewIsValid" [config]="config" [criteriaEvaluation]="criteriaEvaluation" [alternativeEvaluation]="alternativeEvaluation"></ahp-result>
+            </div>
         </div>
         <div [hidden]="currentPart != 1">
             <div class="panel panel-default">
@@ -62,21 +65,30 @@ export class AhpMethod {
   }
 
   createCriteriaEvaluation() {
-      for (var i = 0; i < this.config.criterias.length - 1; i++) {
-          var c1 = this.config.criterias[i];
-          var c2 = this.config.criterias[i + 1];
-          this.criteriaEvaluation.push({c1: c1, c2: c2});
+      var list = this.config.criterias;
+
+      for (var i = 0; i < list.length; i++) {
+          for (var j = i + 1; j < list.length; j++) {
+              var c1 = list[i];
+              var c2 = list[j];
+              this.criteriaEvaluation.push({c1: c1, c2: c2});
+          }
       }
+
       this.checkIfCriteriaEvaluationIsValid();
   }
 
   createAlternativeEvaluation() {
       for (var i = 0; i < this.config.criterias.length; i++) {
           var c = {c: this.config.criterias[i], a: []}
-          for (var j = 0; j < this.config.alternatives.length - 1; j++) {
-              var a1 = this.config.alternatives[j];
-              var a2 = this.config.alternatives[j + 1];
-              c.a.push({a1: a1, a2: a2})
+
+          var list = this.config.alternatives;
+          for (var j = 0; j < list.length; j++) {
+              for (var k = j + 1; k < list.length; k++) {
+                  var a1 = list[j];
+                  var a2 = list[k];
+                  c.a.push({a1: a1, a2: a2})
+              }
           }
           this.alternativeEvaluation.push(c);
       }
@@ -95,7 +107,9 @@ export class AhpMethod {
 
   checkViewValid() {
       if (!this.criteriaEvaluationIsValid) {
-          this.viewIsValid = false;
+          if (this.viewIsValid != false) {
+              this.viewIsValid = false;
+          }
       } else {
           var isValid = true;
           for (var i = 0; i < this.alternativeEvaluationIsValid.length; i++) {
@@ -104,7 +118,9 @@ export class AhpMethod {
                   break;
               }
           }
-          this.viewIsValid = isValid;
+          if (this.viewIsValid != isValid) {
+              this.viewIsValid = isValid;
+          }
       }
   }
 

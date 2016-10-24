@@ -3,9 +3,12 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 @Component({
   selector: 'ahp-eval',
   template: `
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-lg-6 col-md-6 col-sm-6 text-left">{{label1}}</div>
+        <div class="col-lg-6 col-md-6 col-sm-6 text-right">{{label2}}</div>
+    </div>
     <div class="row">
-        <div class="col-lg-2 col-md-2 col-sm-2 text-left">{{label1}}</div>
-        <div class="col-lg-8 col-md-8 col-sm-8 text-center">
+        <div class="col-lg-12 col-md-12 col-sm-12 text-center">
              <div class="btn-group" role="group">
                 <button type="button" class="btn btn-default" [class.active]="value == 9" (click)="valueSelected(9)">9</button>
                 <button type="button" class="btn btn-default" [class.active]="value == 8" (click)="valueSelected(8)">8</button>
@@ -26,8 +29,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
                 <button type="button" class="btn btn-default" [class.active]="value == 1/9" (click)="valueSelected(1/9)">9</button>
              </div>
         </div>
-        <div class="col-lg-2 col-md-2 col-sm-2 text-right">{{label2}}</div>
-     </div>
+    </div>
     `
 })
 
