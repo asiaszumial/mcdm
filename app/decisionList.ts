@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {NgFor} from '@angular/common';
 import {DecisionService} from './decisionService';
+import {Decision} from './model';
 
 @Component({
   selector: 'decision-list',
@@ -12,7 +13,7 @@ import {DecisionService} from './decisionService';
           <a class="navbar-brand" href="#">AHP</a>
         </div>
         <ul class="nav navbar-nav">
-          <li *ngFor="let item of items; let i = index;" (click)="onItemClicked(i)" [class.active]="i==decisionService.getSelectedDecisionIndex()">
+          <li *ngFor="let item of decisions; let i = index;" (click)="onItemClicked(i)" [class.active]="i==decisionService.getSelectedDecisionIndex()">
             <a href="#">{{item.name}}</a>
           </li>
         </ul>
@@ -22,12 +23,12 @@ import {DecisionService} from './decisionService';
 })
 
 export class DecisionList {
-    items = [];
-  constructor(private decisionService: DecisionService) {
-      this.items = decisionService.getConfig();
-  }
+    decisions: Decision[] = [];
+    constructor(private decisionService: DecisionService) {
+        this.decisions = decisionService.getDecisions();
+    }
 
-  onItemClicked(index) {
-    this.decisionService.setSelectedDecisionIndex(index);
-  }
+    onItemClicked(index) {
+      this.decisionService.setSelectedDecisionIndex(index);
+    }
 }

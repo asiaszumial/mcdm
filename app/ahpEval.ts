@@ -41,9 +41,9 @@ export class AhpEval {
     @Input() value;
     @Output() valueUpdated = new EventEmitter();
 
-  constructor() {}
+    constructor() {}
 
-  valueSelected(value) {
-    this.valueUpdated.emit({index: this.index, value: value, index2: this.index2});
-  }
+    valueSelected(value) {
+      this.valueUpdated.emit({index: this.index, value: value, index2: this.index2});
+    }
 }

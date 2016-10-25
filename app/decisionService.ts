@@ -1,22 +1,18 @@
 import {Injectable} from '@angular/core';
+import {Decision} from './model';
 
 @Injectable()
 export class DecisionService {
-    selectedDecisionIndex = 0;
-    decisions = [
-        {name: "Elektrownia wiatrowa",
-            config: {
-                criterias: ["Koszty", "Zagospodarowanie terenu", "Infrastruktura"],
-                alternatives: ["La Braguia", "Estacas"]
-            }},
-        {name: "Elektrownia wodna",
-            config: {
-                criterias: [],
-                alternatives: []
-            }}
+    selectedDecisionIndex: number = 0;
+    decisions: Decision[] = [
+        {
+            name: "Elektrownia wiatrowa",
+            criterias: ["Koszty", "Zagospodarowanie terenu", "Infrastruktura"],
+            alternatives: ["La Braguia", "Estacas"]
+        }
     ];
 
-    getConfig() {
+    getDecisions() {
         return this.decisions;
     }
 
@@ -29,7 +25,7 @@ export class DecisionService {
     }
 
     getCurrentDecision() {
-        return this.decisions[this.selectedDecisionIndex].config;
+        return this.decisions[this.selectedDecisionIndex];
     }
 }
 
