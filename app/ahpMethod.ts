@@ -23,10 +23,7 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
     </div>
     <div class="col-lg-8 col-md-8 col-sm-12">
         <div [hidden]="currentPart != 0">
-            <div *ngIf="!decisionConfig.isValid">Obliczenie wyniku jest niemożliwe, ponieważ nie wprowadzono wszystkich danych</div>
-            <div>
-                <ahp-result [decision]="decision"></ahp-result>
-            </div>
+            <ahp-result [decision]="decision"></ahp-result>
         </div>
         <div [hidden]="currentPart != 1">
             <div class="panel panel-default">

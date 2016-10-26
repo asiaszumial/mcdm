@@ -13,8 +13,7 @@ module.exports = {
       '@angular/core'
     ],
     'app': [
-      './app/app',
-      './app/decisionList'
+      './app/app'
     ]
   },
 

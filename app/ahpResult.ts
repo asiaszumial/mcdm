@@ -8,9 +8,15 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
     <div class="panel panel-default">
         <div class="panel-heading">Wynik</div>
         <div class="panel-body">
+            <h4 *ngIf="!decision.config.isValid">Obliczenie wyniku jest niemożliwe, ponieważ nie wprowadzono wszystkich danych</h4>
             <button (click)="calculate()">Calculate</button>
-            <h4 *ngIf="isInconsistent">Podane dane są sprzeczne, obliczony wynik może nie być poprawny</h4>
-            <table class="table table-bordered">
+            <div *ngIf="isInconsistent">
+                <h4>Obliczenie wyniku jest niemożliwe, ponieważ wprowadzone dane są sprzeczne. Należy ponownie sprawdzić:</h4>
+                <ul>
+                    <li *ngFor="let message of inconsistentMessageList">{{message}}</li>
+                </ul>
+            </div>
+            <table *ngIf="decision.config.isValid && !isInconsistent" class="table table-bordered">
                 <thead>
                     <tr>
                         <th></th>
@@ -49,8 +55,10 @@ export class AhpResult implements OnChanges {
         }
     }
     @Input() decision: Decision;
-    isInconsistent;
-    resultCalculated;
+    isInconsistent: boolean;
+    inconsistentMessageList: String[] = [];
+    resultCalculated: boolean;
+
     resultMatrix = [];
     resultTotal = [];
     criteriaTotal = [];
@@ -188,17 +196,17 @@ export class AhpResult implements OnChanges {
       }
 
       this.isInconsistent = false;
+      this.inconsistentMessageList = [];
       if (cEigen.cr > 0.1) {
-          this.isInconsistent = true;
-      } else {
-          var isInconsistent = false;
-          for (var k = 0; k < criteriaAlternativeCalculations.length; k++) {
-              if (criteriaAlternativeCalculations[k].cr > 0.1) {
-                  isInconsistent = true;
-                  break;
-              }
+          this.inconsistentMessageList.push("Porównanie kryteriów");
+      }
+      for (var k = 0; k < criteriaAlternativeCalculations.length; k++) {
+          if (criteriaAlternativeCalculations[k].cr > 0.1) {
+              this.inconsistentMessageList.push("Porównanie wariantów decyzyjnych wg kryterium: " + criteriaList[k]);
           }
-          this.isInconsistent = isInconsistent;
+      }
+      if (this.inconsistentMessageList.length > 0) {
+          this.isInconsistent = true;
       }
 
       this.resultTotal = resultTotalItems;
@@ -206,6 +214,8 @@ export class AhpResult implements OnChanges {
       this.resultCalculated = true;
       console.log("resultMatrix ", this.resultMatrix);
       console.log("resultTotal ", this.resultTotal);
+      console.log("cEigen ", cEigen);
+      console.log("criteriaAlternativeCalculationscEigen ", criteriaAlternativeCalculations);
   }
 
   sumColumnTotal(matrix) {
