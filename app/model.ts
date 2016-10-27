@@ -2,15 +2,23 @@ export interface Decision {
     name: String;
     criterias: String[];
     alternatives: String[];
-    config?: DecisionConfig;
+    aconfig?: DecisionConfig;
 }
 
 export interface DecisionConfig {
+    resultCalculated: boolean;
+    resultMatrix: number[][];
+    resultTotal: number[];
+    criteriaTotal: number[];
+    crCriteria: number;
+    crAlternatives: number[];
     isValid: boolean;
+    isConsistent: boolean;
     criteriaEvaluations: Evaluation[];
     alternativeEvaluations: AlternativeEvaluation[];
     criteriaEvaluationIsValid: boolean;
     alternativeEvaluationIsValid: boolean[];
+    inconsistentMessageList: String[];
 }
 
 export interface Evaluation {

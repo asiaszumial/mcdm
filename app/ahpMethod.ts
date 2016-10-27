@@ -54,16 +54,24 @@ export class AhpMethod {
     currentAltEvalIndex = -1;
   constructor(private decisionService: DecisionService) {
       this.decision = decisionService.getCurrentDecision();
-      if (this.decision.config == undefined || this.decision.config == null) {
-          this.decision.config = {
+      if (this.decision.aconfig == undefined || this.decision.aconfig == null) {
+          this.decision.aconfig = {
+              resultCalculated: false,
+              resultMatrix: [],
+              resultTotal: [],
+              criteriaTotal: [],
+              crCriteria: 0,
+              crAlternatives: [],
               isValid: false,
+              isConsistent: true,
               criteriaEvaluations: [],
               alternativeEvaluations: [],
               criteriaEvaluationIsValid: false,
-              alternativeEvaluationIsValid: []
+              alternativeEvaluationIsValid: [],
+              inconsistentMessageList: []
           };
       }
-      this.decisionConfig = this.decision.config;
+      this.decisionConfig = this.decision.aconfig;
       if (this.decisionConfig.criteriaEvaluations.length == 0) {
           this.createCriteriaEvaluation();
       }

@@ -8,15 +8,15 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
     <div class="panel panel-default">
         <div class="panel-heading">Wynik</div>
         <div class="panel-body">
-            <h4 *ngIf="!decision.config.isValid">Obliczenie wyniku jest niemożliwe, ponieważ nie wprowadzono wszystkich danych</h4>
+            <h4 *ngIf="!decision.aconfig.isValid">Obliczenie wyniku jest niemożliwe, ponieważ nie wprowadzono wszystkich danych</h4>
             <button (click)="calculate()">Calculate</button>
-            <div *ngIf="isInconsistent">
-                <h4>Obliczenie wyniku jest niemożliwe, ponieważ wprowadzone dane są sprzeczne. Należy ponownie sprawdzić:</h4>
+            <div *ngIf="!decision.aconfig.isConsistent">
+                <h4>Obliczony wynik może nie być poprawny, ponieważ wprowadzone dane są sprzeczne. Należy ponownie sprawdzić:</h4>
                 <ul>
-                    <li *ngFor="let message of inconsistentMessageList">{{message}}</li>
+                    <li *ngFor="let message of decision.aconfig.inconsistentMessageList">{{message}}</li>
                 </ul>
             </div>
-            <table *ngIf="decision.config.isValid && !isInconsistent" class="table table-bordered">
+            <table *ngIf="decision.aconfig.isValid" class="table table-bordered">
                 <thead>
                     <tr>
                         <th></th>
@@ -26,7 +26,7 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
                     <tr>
                         <th></th>
                         <th *ngFor="let c of decision.criterias; let i = index;" class="text-right">
-                            <span *ngIf="resultCalculated">{{criteriaTotal[i].toFixed(2)}}</span>
+                            <span *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.criteriaTotal[i].toFixed(2)}}</span>
                         </th>
                         <th></th>
                     </tr>
@@ -35,10 +35,10 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
                     <tr *ngFor="let a of decision.alternatives; let i = index;">
                         <td>{{a}}</td>
                         <td *ngFor="let c of decision.criterias; let j = index;" class="text-right">
-                            <span *ngIf="resultCalculated">{{resultMatrix[i][j].toFixed(2)}}</span>
+                            <span *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.resultMatrix[i][j].toFixed(2)}}</span>
                         </td>
                         <td class="text-right">
-                            <span style="font-weight: bold;" *ngIf="resultCalculated">{{resultTotal[i].toFixed(2)}}</span>
+                            <span style="font-weight: bold;" *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.resultTotal[i].toFixed(2)}}</span>
                         </td>
                     </tr>
                 </tbody>
@@ -50,24 +50,16 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
 
 export class AhpResult implements OnChanges {
     ngOnChanges(changes) {
-        if (this.decision.config.isValid) {
+        if (this.decision.aconfig.isValid) {
             this.calculate();
         }
     }
     @Input() decision: Decision;
-    isInconsistent: boolean;
-    inconsistentMessageList: String[] = [];
-    resultCalculated: boolean;
-
-    resultMatrix = [];
-    resultTotal = [];
-    criteriaTotal = [];
     consistencyIndex = [0, 0, 0.58, 0.9, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49];
 
     constructor() {}
 
     calculate() {
-      var matrix = [];
 
       //prepare criteria matrix
       var criteriaList = this.decision.criterias;
@@ -80,14 +72,14 @@ export class AhpResult implements OnChanges {
               if (criteria1 == criteria2) {
                   criteriaMatrixRow.push(1);
               } else {
-                  var ceRow = this.decision.config.criteriaEvaluations.find(item => {
+                  var ceRow = this.decision.aconfig.criteriaEvaluations.find(item => {
                       return item.label1 === criteria1 && item.label2 === criteria2;
                   });
 
                   if (ceRow != undefined && ceRow != null) {
                       criteriaMatrixRow.push(ceRow.value);
                   } else {
-                      ceRow = this.decision.config.criteriaEvaluations.find(item => {
+                      ceRow = this.decision.aconfig.criteriaEvaluations.find(item => {
                           return item.label1 === criteria2 && item.label2 === criteria1;
                       });
                       if (ceRow != undefined && ceRow != null) {
@@ -103,16 +95,15 @@ export class AhpResult implements OnChanges {
           criteriaMatrix.push(criteriaMatrixRow);
       }
 
-      console.log("criteriaMatrix ", criteriaMatrix);
-
       var criteriaMatrixSumColumnTotal = this.sumColumnTotal(criteriaMatrix);
+      var normalizedCriteriaMatrix = this.initializeMatrix(criteriaMatrix.length);
       for (var i = 0; i < criteriaMatrix.length; i++) {
           for (var j = 0; j < criteriaMatrix.length; j++) {
-              criteriaMatrix[j][i] = criteriaMatrix[j][i] / criteriaMatrixSumColumnTotal[i];
+              normalizedCriteriaMatrix[j][i] = criteriaMatrix[j][i] / criteriaMatrixSumColumnTotal[i];
           }
       }
-      this.criteriaTotal = this.averageRowTotal(criteriaMatrix);
-      var cEigen = this.calcConsistencyRatio(matrix, this.criteriaTotal);
+      this.decision.aconfig.criteriaTotal = this.averageRowTotal(normalizedCriteriaMatrix);
+      this.decision.aconfig.crCriteria = this.calcConsistencyRatio(criteriaMatrix, this.decision.aconfig.criteriaTotal);
 
 
       //prepare alternatives matrix for each criteria
@@ -132,7 +123,7 @@ export class AhpResult implements OnChanges {
                     if (alternative1 == alternative2) {
                         alternativeMatrixRow.push(1);
                     } else {
-                        var criteriaEvalRow = this.decision.config.alternativeEvaluations.find(item => {
+                        var criteriaEvalRow = this.decision.aconfig.alternativeEvaluations.find(item => {
                             return item.criteriaLabel === criteriaList[k];
                         });
 
@@ -161,19 +152,19 @@ export class AhpResult implements OnChanges {
           criteriaAlternativeMatrix.push(alternativeMatrix);
       }
 
-      console.log("criteriaAlternativeMatrix ", criteriaAlternativeMatrix);
-
       for (var k = 0; k < criteriaNo; k++) {
           var currentAlternativeMatrix = criteriaAlternativeMatrix[k];
+          var normalizedCurrentAlternativeMatrix = this.initializeMatrix(currentAlternativeMatrix.length);
           var sumColumnTotal = this.sumColumnTotal(currentAlternativeMatrix);
           for (var i = 0; i < currentAlternativeMatrix.length; i++) {
               for (var j = 0; j < currentAlternativeMatrix.length; j++) {
-                  currentAlternativeMatrix[j][i] = currentAlternativeMatrix[j][i] / sumColumnTotal[i];
+                  normalizedCurrentAlternativeMatrix[j][i] = currentAlternativeMatrix[j][i] / sumColumnTotal[i];
               }
           }
-          var averageRowTotal = this.averageRowTotal(currentAlternativeMatrix);
-          var crEigen = this.calcConsistencyRatio(matrix, averageRowTotal);
-          criteriaAlternativeCalculations[k] = {cr: crEigen.cr, eigenVector: crEigen.eigenVector, averageRowTotal: averageRowTotal};
+          var averageRowTotal = this.averageRowTotal(normalizedCurrentAlternativeMatrix);
+          var cr = this.calcConsistencyRatio(currentAlternativeMatrix, averageRowTotal);
+          criteriaAlternativeCalculations[k] = averageRowTotal;
+          this.decision.aconfig.crAlternatives[k] = cr;
       }
 
       //prepare result
@@ -181,7 +172,7 @@ export class AhpResult implements OnChanges {
       for (var aNo = 0; aNo < alternativeList.length; aNo++){
           result.push(new Array(criteriaNo).fill(0));
           for (var cNo = 0; cNo < criteriaNo; cNo++) {
-              result[aNo][cNo] = criteriaAlternativeCalculations[cNo].averageRowTotal[aNo];
+              result[aNo][cNo] = criteriaAlternativeCalculations[cNo][aNo];
           }
       }
 
@@ -190,32 +181,37 @@ export class AhpResult implements OnChanges {
           var matrixRow = result[i];
           var resultTotalItem = 0;
           for (var j = 0; j < matrixRow.length; j++) {
-              resultTotalItem += matrixRow[j] * this.criteriaTotal[j];
+              resultTotalItem += matrixRow[j] * this.decision.aconfig.criteriaTotal[j];
           }
           resultTotalItems.push(resultTotalItem);
       }
 
-      this.isInconsistent = false;
-      this.inconsistentMessageList = [];
-      if (cEigen.cr > 0.1) {
-          this.inconsistentMessageList.push("Porównanie kryteriów");
+      this.decision.aconfig.isConsistent = true;
+      this.decision.aconfig.inconsistentMessageList = [];
+      if (this.decision.aconfig.crCriteria > 0.1) {
+          this.decision.aconfig.inconsistentMessageList.push("Porównanie kryteriów");
       }
-      for (var k = 0; k < criteriaAlternativeCalculations.length; k++) {
-          if (criteriaAlternativeCalculations[k].cr > 0.1) {
-              this.inconsistentMessageList.push("Porównanie wariantów decyzyjnych wg kryterium: " + criteriaList[k]);
+      for (var k = 0; k < this.decision.aconfig.crAlternatives.length; k++) {
+          if (this.decision.aconfig.crAlternatives[k] > 0.1) {
+              this.decision.aconfig.inconsistentMessageList.push("Porównanie wariantów decyzyjnych wg kryterium: " + criteriaList[k]);
           }
       }
-      if (this.inconsistentMessageList.length > 0) {
-          this.isInconsistent = true;
+      if (this.decision.aconfig.inconsistentMessageList.length > 0) {
+          this.decision.aconfig.isConsistent = false;
       }
 
-      this.resultTotal = resultTotalItems;
-      this.resultMatrix = result;
-      this.resultCalculated = true;
-      console.log("resultMatrix ", this.resultMatrix);
-      console.log("resultTotal ", this.resultTotal);
-      console.log("cEigen ", cEigen);
-      console.log("criteriaAlternativeCalculationscEigen ", criteriaAlternativeCalculations);
+      this.decision.aconfig.resultTotal = resultTotalItems;
+      this.decision.aconfig.resultMatrix = result;
+      this.decision.aconfig.resultCalculated = true;
+  }
+
+  initializeMatrix(size: number) {
+      var result = [];
+      for (var i = 0; i < size; i++) {
+          result[i] = new Array(size).fill(0);
+          result[i][i] = 1;
+      }
+      return result;
   }
 
   sumColumnTotal(matrix) {
@@ -268,8 +264,11 @@ export class AhpResult implements OnChanges {
       var avgEigenValue = eigenValue / size;
 
       var ci = (avgEigenValue - size) / (size - 1);
-      var cr = ci / this.consistencyIndex[size - 1];
+      var cr = 0;
+      if (this.consistencyIndex[size -1] != 0) {
+          cr = ci / this.consistencyIndex[size - 1];
+      }
 
-      return {cr: cr, eigenVector: eigenVector};
+      return cr;
   }
 }

@@ -5,8 +5,8 @@ import {Decision} from './model';
 export class DecisionService {
     decision: Decision = {
         name: "Elektrownia wiatrowa",
-        criterias: ["Koszty", "Infrastruktura", "Bla1", "Bla2", "Bla3"],
-        alternatives: ["La Braguia", "Estacas", "Barcelona", "Bla4", "Bla5"]
+        criterias: ["Koszty", "Infrastruktura"],
+        alternatives: ["La Braguia", "Estacas", "Barcelona"]
     };
 
     getCurrentDecision() {
