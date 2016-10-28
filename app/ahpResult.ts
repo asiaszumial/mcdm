@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, DoCheck } from '@angular/core';
 import {NgFor, NgIf} from '@angular/common';
-import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './model';
+import {Decision, AlternativeEvaluation, Evaluation} from './model';
 
 @Component({
   selector: 'ahp-result',

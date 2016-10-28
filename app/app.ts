@@ -4,6 +4,7 @@ import {NgFor, NgIf} from '@angular/common';
 import {DecisionService} from './decisionService';
 import {AhpMethod} from './ahpMethod';
 import {Decision} from './model';
+import {ElectreMethod} from './electreMethod';
 
 declare var require: any
 const electron = require('electron');
@@ -15,7 +16,7 @@ var appComponent;
 
 @Component({
   selector: 'app',
-  directives: [AhpMethod],
+  directives: [AhpMethod, ElectreMethod],
   providers: [DecisionService],
   template: `
     <nav class="navbar navbar-inverse">
@@ -34,6 +35,7 @@ var appComponent;
       </div>
     </nav>
     <ahp-method *ngIf="currentDecision && ahpMethodSelected" [currentDecision]="currentDecision"></ahp-method>
+    <electre-method *ngIf="currentDecision && !ahpMethodSelected" [currentDecision]="currentDecision"></electre-method>
   `
 })
 

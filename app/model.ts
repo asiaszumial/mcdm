@@ -2,22 +2,26 @@ export interface Decision {
     name: String;
     criterias: String[];
     alternatives: String[];
-    aconfig?: DecisionConfig;
+    aconfig?: ADecisionConfig;
+    econfig?: EDecisionConfig;
 }
 
 export interface DecisionConfig {
     resultCalculated: boolean;
+    isValid: boolean;
+    criteriaEvaluationIsValid: boolean;
+    alternativeEvaluationIsValid: boolean[];
+}
+
+export interface ADecisionConfig extends DecisionConfig {
     resultMatrix: number[][];
     resultTotal: number[];
     criteriaTotal: number[];
     crCriteria: number;
     crAlternatives: number[];
-    isValid: boolean;
-    isConsistent: boolean;
     criteriaEvaluations: Evaluation[];
     alternativeEvaluations: AlternativeEvaluation[];
-    criteriaEvaluationIsValid: boolean;
-    alternativeEvaluationIsValid: boolean[];
+    isConsistent: boolean;
     inconsistentMessageList: String[];
 }
 
@@ -30,4 +34,11 @@ export interface Evaluation {
 export interface AlternativeEvaluation {
     criteriaLabel: String;
     evalArray: Evaluation[];
+}
+
+export interface EDecisionConfig extends DecisionConfig {
+    criteriaWeights: number[];
+    criteriaWetoTresholds: number[];
+    alternativeWeights: number[][];
+    complianceThreshold: number;
 }

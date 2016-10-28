@@ -3,7 +3,7 @@ import {NgFor, NgIf} from '@angular/common';
 import {DecisionService} from './decisionService';
 import {AhpEval} from './ahpEval';
 import {AhpResult} from './ahpResult';
-import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './model';
+import {Decision, ADecisionConfig, AlternativeEvaluation, Evaluation} from './model';
 
 @Component({
   selector: 'ahp-method',
@@ -53,7 +53,7 @@ export class AhpMethod {
         this.decision = d;
         this.initDecision();
     }
-    decisionConfig: DecisionConfig;
+    decisionConfig: ADecisionConfig;
     currentPart = 0;
     currentAltEvalIndex = -1;
   constructor() {}
