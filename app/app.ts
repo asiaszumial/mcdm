@@ -1,14 +1,17 @@
 import {bootstrap} from '@angular/platform-browser-dynamic';
-import {Component} from '@angular/core';
+import {Component, NgZone} from '@angular/core';
 import {NgFor, NgIf} from '@angular/common';
 import {DecisionService} from './decisionService';
 import {AhpMethod} from './ahpMethod';
+import {Decision} from './model';
 
 declare var require: any
 const electron = require('electron');
 const remote = electron.remote;
+const fs = require('fs');
 
 let {dialog} = remote;
+var appComponent;
 
 @Component({
   selector: 'app',
@@ -30,27 +33,36 @@ let {dialog} = remote;
         </ul>
       </div>
     </nav>
-    <ahp-method *ngIf="ahpMethodSelected"></ahp-method>
+    <ahp-method *ngIf="currentDecision && ahpMethodSelected" [currentDecision]="currentDecision"></ahp-method>
   `
 })
 
 export class App {
-  currentProjectName: String;
+  currentDecision: Decision;
   ahpMethodSelected: boolean = true;
-  constructor(private decisionService: DecisionService) {
+  openedFileName: String;
+
+  constructor(private decisionService: DecisionService, private zone: NgZone) {
+    appComponent = this;
     var menu = remote.Menu.buildFromTemplate([{
       label: "Otwórz",
-      click: function(){
-            console.log("open")
-            }
+      click: function() {
+          appComponent.openProject();
+      }
     }, {
       label: "Zapisz",
-        click: function(){
-              console.log("save")
-            }
+      click: function() {
+          appComponent.saveCurrentDecision();
+      }
     }]);
     remote.Menu.setApplicationMenu(menu);
-    this.currentProjectName = decisionService.getCurrentDecision().name;
+    this.setDecision();
+  }
+
+  setDecision() {
+    this.zone.run(() => {
+      this.currentDecision = this.decisionService.getCurrentDecision();
+    });
   }
 
   ahpSelected() {
@@ -59,6 +71,49 @@ export class App {
 
   electreSelected() {
     this.ahpMethodSelected = false;
+  }
+
+  openProject() {
+    dialog.showOpenDialog(function (fileNames) {
+      if(fileNames !== undefined) {
+        fs.readFile(fileNames[0], 'utf-8', function (err, data) {
+          if(err) {
+            alert("Wystąpił błąd podczas otwierania pliku");
+            return;
+          }
+          appComponent.decisionService.setDecision(JSON.parse(data));
+          appComponent.setDecision();
+          appComponent.openedFileName = fileNames[0];
+        });
+      }
+    });
+  }
+
+  saveCurrentDecision() {
+    let content = JSON.stringify(appComponent.decisionService.getCurrentDecision());
+
+    if (appComponent.openedFileName !== undefined && appComponent.openedFileName !== null && appComponent.openedFileName.length > 0) {
+        fs.writeFile(appComponent.openedFileName, content, function (err) {
+          if(err) {
+            alert("Wystąpił błąd podczas zapisywania pliku");
+            return;
+          }
+          alert("Plik został zapisany");
+        }); 
+    } else {
+        dialog.showSaveDialog(function (fileName) {
+        if (fileName === undefined) {
+          return;
+        }
+        // fileName is a string that contains the path and filename created in the save file dialog.  
+        fs.writeFile(fileName, content, function (err) {
+          if(err) {
+            alert("Wystąpił błąd podczas zapisywania pliku");
+          }
+          alert("Plik został zapisany");
+        });
+      });
+    }
   }
 }
 

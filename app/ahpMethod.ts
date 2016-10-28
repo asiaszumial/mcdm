@@ -49,11 +49,17 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
 
 export class AhpMethod {
     decision: Decision;
+    @Input() set currentDecision (d: Decision) {
+        console.log("set decision", d);
+        this.decision = d;
+        this.initDecision();
+    }
     decisionConfig: DecisionConfig;
     currentPart = 0;
     currentAltEvalIndex = -1;
-  constructor(private decisionService: DecisionService) {
-      this.decision = decisionService.getCurrentDecision();
+  constructor() {}
+
+  initDecision() {
       if (this.decision.aconfig == undefined || this.decision.aconfig == null) {
           this.decision.aconfig = {
               resultCalculated: false,

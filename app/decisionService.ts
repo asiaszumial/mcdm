@@ -3,14 +3,14 @@ import {Decision} from './model';
 
 @Injectable()
 export class DecisionService {
-    decision: Decision = {
-        name: "Elektrownia wiatrowa",
-        criterias: ["Koszty", "Infrastruktura"],
-        alternatives: ["La Braguia", "Estacas", "Barcelona"]
-    };
+    decision: Decision;
 
     getCurrentDecision() {
         return this.decision;
+    }
+
+    setDecision(d: Decision) {
+        this.decision = d;
     }
 }
 
