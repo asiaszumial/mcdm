@@ -9,5 +9,8 @@
   },
   "files": [
     "app/app.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
