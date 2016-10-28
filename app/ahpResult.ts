@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, OnChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, DoCheck } from '@angular/core';
 import {NgFor, NgIf} from '@angular/common';
 import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './model';
 
@@ -9,7 +9,6 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
         <div class="panel-heading">Wynik</div>
         <div class="panel-body">
             <h4 *ngIf="!decision.aconfig.isValid">Obliczenie wyniku jest niemożliwe, ponieważ nie wprowadzono wszystkich danych</h4>
-            <button (click)="calculate()">Calculate</button>
             <div *ngIf="!decision.aconfig.isConsistent">
                 <h4>Obliczony wynik może nie być poprawny, ponieważ wprowadzone dane są sprzeczne. Należy ponownie sprawdzić:</h4>
                 <ul>
@@ -48,8 +47,8 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
     `
 })
 
-export class AhpResult implements OnChanges {
-    ngOnChanges(changes) {
+export class AhpResult implements DoCheck  {
+    ngDoCheck() {
         if (this.decision.aconfig.isValid) {
             this.calculate();
         }

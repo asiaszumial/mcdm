@@ -21,7 +21,7 @@ var appComponent;
     <nav class="navbar navbar-inverse">
       <div class="container">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">{{currentProjectName}}</a>
+          <a class="navbar-brand" href="#">{{currentDecision ? currentDecision.name : ""}}</a>
         </div>
         <ul class="nav navbar-nav">
           <li (click)="ahpSelected()" [class.active]="ahpMethodSelected">
@@ -78,7 +78,7 @@ export class App {
       if(fileNames !== undefined) {
         fs.readFile(fileNames[0], 'utf-8', function (err, data) {
           if(err) {
-            alert("Wystąpił błąd podczas otwierania pliku");
+            dialog.showErrorBox("Wystąpił błąd podczas zapisywania pliku", err.message);
             return;
           }
           appComponent.decisionService.setDecision(JSON.parse(data));
@@ -95,10 +95,10 @@ export class App {
     if (appComponent.openedFileName !== undefined && appComponent.openedFileName !== null && appComponent.openedFileName.length > 0) {
         fs.writeFile(appComponent.openedFileName, content, function (err) {
           if(err) {
-            alert("Wystąpił błąd podczas zapisywania pliku");
+            dialog.showErrorBox("Wystąpił błąd podczas zapisywania pliku", err.message);
             return;
           }
-          alert("Plik został zapisany");
+          dialog.showMessageBox({message: "Plik został zapisany.", buttons: ["OK"]});
         }); 
     } else {
         dialog.showSaveDialog({filters: [{name: 'text', extensions: ['json'] }]}, function (fileName) {
@@ -108,9 +108,9 @@ export class App {
         // fileName is a string that contains the path and filename created in the save file dialog.  
         fs.writeFile(fileName, content, function (err) {
           if(err) {
-            alert("Wystąpił błąd podczas zapisywania pliku");
+            dialog.showErrorBox("Wystąpił błąd podczas zapisywania pliku", err.message);
           }
-          alert("Plik został zapisany");
+          dialog.showMessageBox({message: "Plik został zapisany.", buttons: ["OK"]});
         });
       });
     }

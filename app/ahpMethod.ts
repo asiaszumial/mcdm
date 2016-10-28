@@ -50,7 +50,6 @@ import {Decision, DecisionConfig, AlternativeEvaluation, Evaluation} from './mod
 export class AhpMethod {
     decision: Decision;
     @Input() set currentDecision (d: Decision) {
-        console.log("set decision", d);
         this.decision = d;
         this.initDecision();
     }
