@@ -74,7 +74,7 @@ export class App {
   }
 
   openProject() {
-    dialog.showOpenDialog(function (fileNames) {
+    dialog.showOpenDialog({filters: [{name: 'text', extensions: ['json'] }]}, function (fileNames) {
       if(fileNames !== undefined) {
         fs.readFile(fileNames[0], 'utf-8', function (err, data) {
           if(err) {
@@ -101,7 +101,7 @@ export class App {
           alert("Plik został zapisany");
         }); 
     } else {
-        dialog.showSaveDialog(function (fileName) {
+        dialog.showSaveDialog({filters: [{name: 'text', extensions: ['json'] }]}, function (fileName) {
         if (fileName === undefined) {
           return;
         }
