@@ -11,6 +11,8 @@ export interface DecisionConfig {
     isValid: boolean;
     criteriaEvaluationIsValid: boolean;
     alternativeEvaluationIsValid: boolean[];
+    isConsistent: boolean;
+    inconsistentMessageList: String[];
 }
 
 export interface ADecisionConfig extends DecisionConfig {
@@ -21,8 +23,6 @@ export interface ADecisionConfig extends DecisionConfig {
     crAlternatives: number[];
     criteriaEvaluations: Evaluation[];
     alternativeEvaluations: AlternativeEvaluation[];
-    isConsistent: boolean;
-    inconsistentMessageList: String[];
 }
 
 export interface Evaluation {

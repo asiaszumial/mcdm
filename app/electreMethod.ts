@@ -1,16 +1,17 @@
 import {Component, Input, EventEmitter} from '@angular/core';
 import {NgFor, NgIf} from '@angular/common';
 import {Decision, EDecisionConfig} from './model';
+import {ElectreResult} from './electreResult';
 
 @Component({
   selector: 'electre-method',
-  directives: [],
+  directives: [ElectreResult],
   template: `
     <div class="col-lg-4 col-md-4 col-sm-12">
         <ul class="list-group">
             <li class="list-group-item" (click)="showGoal()" [class.active]="currentPart == 0">Wynik</li>
             <li class="list-group-item" (click)="showCriterias()" [class.active]="currentPart == 1">
-                Kryteria <span *ngIf="decisionConfig.criteriaEvaluationIsValid" class="glyphicon glyphicon-ok"></span>
+                Kryteria <span *ngIf="decisionConfig.criteriaEvaluationIsValid && decisionConfig.isConsistent" class="glyphicon glyphicon-ok"></span>
             </li>
             <li class="list-group-item" style="padding-left: 30px;" *ngFor="let item of decision.criterias; let i = index;" [class.active]="currentAltIndex == i" (click)="showAlternativesForCriteria(i)">
                 Warianty decyzyjne wg kryterium: {{item}} <span *ngIf="decisionConfig.alternativeEvaluationIsValid[i]" class="glyphicon glyphicon-ok"></span>
@@ -23,6 +24,7 @@ import {Decision, EDecisionConfig} from './model';
                 <label>Podaj próg zgodności:</label>
                 <input type="number" style="width: 100px;" class="form-control" value="{{decisionConfig.complianceThreshold}}" #complianceThreshold (keyup)="onComplianceThresholdChange(complianceThreshold.value)">
                 <span>*Próg zgodności musi się mieścić w przedziale 0.5-1</span>
+                <electre-result [decision]="decision"></electre-result>
             </div>
         </div>
         <div [hidden]="currentPart != 1">
@@ -56,22 +58,22 @@ import {Decision, EDecisionConfig} from './model';
                 </div>
             </div>
         </div>
-        <div *ngFor="let item of decision.criterias; let i = index;" [hidden]="currentAltIndex != i">
+        <div *ngFor="let c of decision.criterias; let i = index;" [hidden]="currentAltIndex != i">
             <div class="panel panel-default">
-                <div class="panel-heading">Ocena wariantów decyzyjnych względem kryterium: {{item}}</div>
+                <div class="panel-heading">Ocena wariantów decyzyjnych względem kryterium: {{c}}</div>
                 <div class="panel-body">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th></th>
-                                <th *ngFor="let c of decision.criterias">{{c}}</th>
+                                <th *ngFor="let a of decision.alternatives">{{a}}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let aItem of decision.alternatives; let k = index;">
-                                <td>{{aItem}}</td>
-                                <td *ngFor="let c of decision.criterias; let j = index;" class="text-right">
-                                    <input type="number" class="form-control" value="{{decisionConfig.alternativeWeights[j][k]}}" (keyup)="onAlternativeWeightChange($event.target.value, k, j)"/>
+                            <tr>
+                                <td>Waga</td>
+                                <td *ngFor="let a of decision.alternatives; let j = index;" class="text-right">
+                                    <input type="number" class="form-control" value="{{decisionConfig.alternativeWeights[i][j]}}" (keyup)="onAlternativeWeightChange($event.target.value, j, i)"/>
                                 </td>
                             </tr>
                         </tbody>
@@ -104,7 +106,9 @@ export class ElectreMethod {
               criteriaWeights: [],
               criteriaWetoTresholds: [],
               alternativeWeights: this.getEmptyAlternativeWeights(),
-              complianceThreshold: 0.5
+              complianceThreshold: 0.5,
+              isConsistent: true,
+              inconsistentMessageList: []
           };
       }
       this.decisionConfig = this.decision.econfig;
@@ -121,11 +125,13 @@ export class ElectreMethod {
   onComplianceThresholdChange(value) {
       this.decisionConfig.complianceThreshold = Number(value);
       this.checkIfValid();
+      this.checkIfConsistent();
   }
 
   onCriteriaWeightChange(value, index) {
       this.decisionConfig.criteriaWeights[index] = Number(value);
       this.checkCriteriaWeightValidity();
+      this.checkIfConsistent();
   }
 
   onCriteriaWetoTresholdChange(value, index) {
@@ -153,16 +159,48 @@ export class ElectreMethod {
       this.decisionConfig.isValid = valid;
   }
 
+  checkIfConsistent() {
+      let consistent = true;
+      this.decision.econfig.inconsistentMessageList = [];
+      if (this.decisionConfig.complianceThreshold < 0.5 || this.decisionConfig.complianceThreshold > 1.0) {
+          consistent = false;
+          this.decision.econfig.inconsistentMessageList.push("Próg zgodności jest poza wymaganym przedziałem wartości.");
+      } else {
+          let sum = 0;
+          for (let i = 0; i < this.decision.criterias.length; i++) {
+              if (this.decisionConfig.criteriaWeights[i] === undefined || this.decisionConfig.criteriaWeights[i] === null) {
+                  consistent = false;
+                  break;
+              } else {
+                  sum += this.decisionConfig.criteriaWeights[i];
+              }
+          }
+          if (sum !== 1) {
+              consistent = false;
+          }
+      }
+      if (!consistent) {
+          this.decision.econfig.inconsistentMessageList.push("Suma wag kryteriów nie jest równa 1.");
+      }
+      this.decision.econfig.isConsistent = consistent;
+  }
+
   checkCriteriaWeightValidity() {
       let sum = 0;
+      let valid = true;
       for (let i = 0; i < this.decision.criterias.length; i++) {
-          sum += this.decisionConfig.criteriaWeights[i];
+          if (this.decisionConfig.criteriaWeights[i] === undefined || this.decisionConfig.criteriaWeights[i] === null) {
+              valid = false;
+              break;
+          } else {
+              sum += this.decisionConfig.criteriaWeights[i];
+          }
       }
       if (sum !== 1) {
-          this.decisionConfig.criteriaEvaluationIsValid = false;
-      } else {
-          this.decisionConfig.criteriaEvaluationIsValid = true;
+          valid = false;
       }
+
+      this.decision.econfig.isValid = valid;
       this.checkIfValid();
   }
 
