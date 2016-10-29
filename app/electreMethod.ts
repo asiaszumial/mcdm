@@ -149,12 +149,17 @@ export class ElectreMethod {
       if (this.decisionConfig.complianceThreshold < 0.5 || this.decisionConfig.complianceThreshold > 1.0 || !this.decisionConfig.criteriaEvaluationIsValid) {
           valid = false;
       } else {
-          for (let i = 0; i < this.decisionConfig.alternativeEvaluationIsValid.length; i++) {
-              if (!this.decisionConfig.alternativeEvaluationIsValid[i]) {
-                  valid = false;
-                  break;
-              } 
+          if (this.decisionConfig.alternativeEvaluationIsValid.length === 0) {
+              valid = false;
+          } else {
+              for (let i = 0; i < this.decisionConfig.alternativeEvaluationIsValid.length; i++) {
+                  if (!this.decisionConfig.alternativeEvaluationIsValid[i]) {
+                      valid = false;
+                      break;
+                  } 
+              }
           }
+          
       }
       this.decisionConfig.isValid = valid;
   }

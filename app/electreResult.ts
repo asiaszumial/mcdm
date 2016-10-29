@@ -30,5 +30,94 @@ export class ElectreResult implements DoCheck  {
 
     constructor() {}
 
-    calculate() {}
+    calculate() {
+        let criteriaNo = this.decision.criterias.length;
+        let alternativesNo = this.decision.alternatives.length;
+
+        let alternativeRelationMatrixes = [];
+        for (let k = 0; k < criteriaNo; k++) {
+            alternativeRelationMatrixes[k] = this.buildRelationMatrix(alternativesNo, this.decision.econfig.alternativeWeights[k]);
+        }
+
+        let concordanceMatrix = [];
+        for (let i = 0; i < alternativesNo; i++) {
+            concordanceMatrix[i] = new Array(alternativesNo);
+            for (let j = 0; j < alternativesNo; j++) {
+                concordanceMatrix[i][j] = 0;
+                for (let k = 0; k < criteriaNo; k++) {
+                    let alternativeRelationMatrix = alternativeRelationMatrixes[k];
+                    let cWeight = this.decision.econfig.criteriaWeights[k];
+                    concordanceMatrix[i][j] += alternativeRelationMatrix[i][j] * cWeight;
+                }
+            }
+        }
+
+        let concordanceSet = [];
+        for (let i = 0; i < alternativesNo; i++) {
+            concordanceSet[i] = new Array(alternativesNo);
+            for (let j = 0; j < alternativesNo; j++) {
+                if (concordanceMatrix[i][j] >= this.decision.econfig.complianceThreshold) {
+                    concordanceSet[i][j] = 0;
+                } else {
+                    concordanceSet[i][j] = "*";
+                }
+            }
+        }
+
+        let discordanceMatrixes = [];
+        for (let k = 0; k <criteriaNo; k++) {
+            let discordanceMatrix = [];
+            for (let i = 0; i < alternativesNo; i++) {
+                discordanceMatrix[i] = new Array(alternativesNo);
+                for (let j = 0; j < alternativesNo; j++) {
+                    if (concordanceSet[i][j] === 0) {
+                        let cVeto = this.decision.econfig.criteriaWetoTresholds[k];
+                        if (this.decision.econfig.alternativeWeights[k][i] + cVeto >= this.decision.econfig.alternativeWeights[k][j]) {
+                            discordanceMatrix[i][j] = 0;
+                        } else {
+                            discordanceMatrix[i][j] = 1;
+                        }
+                    } else {
+                        discordanceMatrix[i][j] = "*";
+                    }
+                }
+            }
+            discordanceMatrixes[k] = discordanceMatrix;
+        }
+
+        for (let i = 0; i < concordanceSet.length; i++) {
+            for (let j = 0; j < concordanceSet.length; j++) {
+                if (concordanceSet[i][j] === 0) {
+                    for (let k = 0; k < criteriaNo; k++) {
+                        if (discordanceMatrixes[k][i][j] === 1) {
+                            concordanceSet[i][j] = "*";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        let preferenceRelationSet = [];
+        for (let i = 0; i < concordanceSet.length; i++) {
+            for (let j = 0; j < concordanceSet.length; j++) {
+                if (i !== j && concordanceSet[i][j] === 0) {
+                    preferenceRelationSet.push({item1: i, item2: j});
+                }
+            }
+        }
+
+        console.log(preferenceRelationSet);
+    }
+
+    buildRelationMatrix(size: number, matrix: number[]) {
+        let result = [];
+        for (let i = 0; i < size; i++) {
+            result[i] = new Array(size);
+            for (let j = 0; j < size; j++) {
+                result[i][j] = matrix[i] >= matrix[j] ? 1 : 0;
+            }
+        }
+        return result;
+    }
 }
