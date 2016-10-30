@@ -73,7 +73,8 @@ export class AhpMethod {
               alternativeEvaluations: [],
               criteriaEvaluationIsValid: false,
               alternativeEvaluationIsValid: [],
-              inconsistentMessageList: []
+              inconsistentMessageList: [],
+              resultRank: []
           };
       }
       this.decisionConfig = this.decision.aconfig;

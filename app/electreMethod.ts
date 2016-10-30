@@ -108,7 +108,8 @@ export class ElectreMethod {
               alternativeWeights: this.getEmptyAlternativeWeights(),
               complianceThreshold: 0.5,
               isConsistent: true,
-              inconsistentMessageList: []
+              inconsistentMessageList: [],
+              resultRank: []
           };
       }
       this.decisionConfig = this.decision.econfig;

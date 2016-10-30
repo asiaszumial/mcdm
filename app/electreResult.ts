@@ -15,6 +15,22 @@ import {Decision} from './model';
                     <li *ngFor="let message of decision.econfig.inconsistentMessageList">{{message}}</li>
                 </ul>
             </div>
+            <div *ngIf="decision.econfig.resultRank && decision.econfig.resultRank.length > 0">
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Ranking</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let rankItem of decision.econfig.resultRank">
+                                <td>{{rankItem}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
      </div>
     `
@@ -98,16 +114,16 @@ export class ElectreResult implements DoCheck  {
             }
         }
         
-        let preferenceRelationSet = [];
+        let preferenceRelationVectors = [];
         for (let i = 0; i < concordanceSet.length; i++) {
             for (let j = 0; j < concordanceSet.length; j++) {
                 if (i !== j && concordanceSet[i][j] === 0) {
-                    preferenceRelationSet.push({item1: i, item2: j});
+                    preferenceRelationVectors.push({item1: i, item2: j});
                 }
             }
         }
 
-        console.log(preferenceRelationSet);
+        this.buildResult(preferenceRelationVectors)
     }
 
     buildRelationMatrix(size: number, matrix: number[]) {
@@ -119,5 +135,56 @@ export class ElectreResult implements DoCheck  {
             }
         }
         return result;
+    }
+
+    buildResult(preferenceRelationVectors) {
+        let processedItems = {};
+        let count = preferenceRelationVectors.length;
+        this.decision.econfig.resultRank = [];
+        while (count > 0) {
+            let indexesToRemove = [];
+            for (let i = 0; i < preferenceRelationVectors.length; i++) {
+                let currentItem = preferenceRelationVectors[i];
+                let contains = false;
+                for (let j = 0; j < preferenceRelationVectors.length; j++) {
+                    if (currentItem.item1 === preferenceRelationVectors[j].item2) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    indexesToRemove.push(i);
+                    if (processedItems[currentItem.item1] === undefined || processedItems[currentItem.item1] === null) {
+                        processedItems[currentItem.item1] = true;
+                        let rankItem = this.decision.econfig.resultRank[this.decision.econfig.resultRank.length];
+                        if (rankItem === undefined || rankItem === null) {
+                            this.decision.econfig.resultRank.push(this.decision.alternatives[currentItem.item1]);
+                        } else {
+                            rankItem += ", " + this.decision.alternatives[currentItem.item1];
+                        }
+                    }
+                }
+            }
+            
+            for (let i = 0; i < indexesToRemove.length; i++) {
+                preferenceRelationVectors[indexesToRemove[i]] = undefined;
+            }
+            preferenceRelationVectors = preferenceRelationVectors.filter(item => item !== undefined);
+            count = preferenceRelationVectors.length;
+        }
+
+        for (let i = 0; i < this.decision.alternatives.length; i++) {
+            if (processedItems[i] === undefined || processedItems[i] === null) {
+                processedItems[i] = true;
+                let rankItem = this.decision.econfig.resultRank[this.decision.econfig.resultRank.length];
+                if (rankItem === undefined || rankItem === null) {
+                    this.decision.econfig.resultRank.push(this.decision.alternatives[i]);
+                } else {
+                    rankItem += ", " + this.decision.alternatives[i];
+                }
+            }
+        }
+
+        this.decision.econfig.resultCalculated = true;
     }
 }

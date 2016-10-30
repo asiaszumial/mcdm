@@ -13,6 +13,7 @@ export interface DecisionConfig {
     alternativeEvaluationIsValid: boolean[];
     isConsistent: boolean;
     inconsistentMessageList: String[];
+    resultRank: String[];
 }
 
 export interface ADecisionConfig extends DecisionConfig {

@@ -15,33 +15,49 @@ import {Decision, AlternativeEvaluation, Evaluation} from './model';
                     <li *ngFor="let message of decision.aconfig.inconsistentMessageList">{{message}}</li>
                 </ul>
             </div>
-            <table *ngIf="decision.aconfig.isValid" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th *ngFor="let c of decision.criterias">{{c}}</th>
-                        <th>Wynik</th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th *ngFor="let c of decision.criterias; let i = index;" class="text-right">
-                            <span *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.criteriaTotal[i].toFixed(2)}}</span>
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let a of decision.alternatives; let i = index;">
-                        <td>{{a}}</td>
-                        <td *ngFor="let c of decision.criterias; let j = index;" class="text-right">
-                            <span *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.resultMatrix[i][j].toFixed(2)}}</span>
-                        </td>
-                        <td class="text-right">
-                            <span style="font-weight: bold;" *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.resultTotal[i].toFixed(2)}}</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="col-lg-4 col-md-4 col-sm-12">
+                <table *ngIf="decision.aconfig.isValid" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Ranking</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let rankItem of decision.aconfig.resultRank">
+                            <td>{{rankItem}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-12">
+                <table *ngIf="decision.aconfig.isValid" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th *ngFor="let c of decision.criterias">{{c}}</th>
+                            <th>Wynik</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th *ngFor="let c of decision.criterias; let i = index;" class="text-right">
+                                <span *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.criteriaTotal[i].toFixed(2)}}</span>
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of decision.alternatives; let i = index;">
+                            <td>{{a}}</td>
+                            <td *ngFor="let c of decision.criterias; let j = index;" class="text-right">
+                                <span *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.resultMatrix[i][j].toFixed(2)}}</span>
+                            </td>
+                            <td class="text-right">
+                                <span style="font-weight: bold;" *ngIf="decision.aconfig.resultCalculated">{{decision.aconfig.resultTotal[i].toFixed(2)}}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
      </div>
     `
@@ -201,6 +217,14 @@ export class AhpResult implements DoCheck  {
 
       this.decision.aconfig.resultTotal = resultTotalItems;
       this.decision.aconfig.resultMatrix = result;
+
+      let sortedResultTotal = [];
+      for (let i = 0; i < resultTotalItems.length; i++) {
+          sortedResultTotal.push({val: resultTotalItems[i], text: this.decision.alternatives[i]});
+      }
+      sortedResultTotal.sort((i1, i2) => i2.val - i1.val);
+      this.decision.aconfig.resultRank = sortedResultTotal.map(item => item.text);
+
       this.decision.aconfig.resultCalculated = true;
   }
 
