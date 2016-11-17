@@ -30,7 +30,7 @@ var appComponent;
                 <a href="#">AHP</a>
               </li>
               <li (click)="electreSelected()" [class.active]="!ahpMethodSelected">
-                <a href="#">Electre</a>
+                <a href="#">Electre I</a>
               </li>
             </ul>
           </div>
@@ -68,7 +68,7 @@ var appComponent;
                 </table>
               </div>
               <small *ngIf="!viewModel.criteriaValid" class="text-danger">
-                Należy wprowadzić przynajmniej 2 kryteria.
+                Należy wprowadzić przynajmniej 1 kryterium.
               </small>
           </div>
         </div>
@@ -161,7 +161,7 @@ export class App {
 
   saveDecisionModel() {
     this.viewModel.nameValid = this.formModel.name.length > 0;
-    this.viewModel.criteriaValid = this.formModel.criterias.filter((item) => item.length > 0).length >= 2;
+    this.viewModel.criteriaValid = this.formModel.criterias.filter((item) => item.length > 0).length >= 1;
     this.viewModel.alternativeValid = this.formModel.alternatives.filter((item) => item.length > 0).length >= 2;
     if (this.viewModel.nameValid && this.viewModel.criteriaValid && this.viewModel.alternativeValid) {
       this.decisionService.setDecision(this.formModel);
