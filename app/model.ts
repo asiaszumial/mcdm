@@ -42,4 +42,5 @@ export interface EDecisionConfig extends DecisionConfig {
     criteriaWetoTresholds: number[];
     alternativeWeights: number[][];
     complianceThreshold: number;
+    outrankingMatrix: number[][];
 }

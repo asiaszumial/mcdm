@@ -109,7 +109,8 @@ export class ElectreMethod {
               complianceThreshold: 0.5,
               isConsistent: true,
               inconsistentMessageList: [],
-              resultRank: []
+              resultRank: [],
+              outrankingMatrix: []
           };
       }
       this.decisionConfig = this.decision.econfig;

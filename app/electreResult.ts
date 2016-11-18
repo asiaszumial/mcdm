@@ -30,6 +30,24 @@ import {Decision} from './model';
                         </tbody>
                     </table>
                 </div>
+                <div class="col-lg-8 col-md-8 col-sm-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th *ngFor="let a of decision.alternatives">{{a}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let ai of decision.alternatives; let i = index;">
+                                <td>{{ai}}</td>
+                                <td *ngFor="let aj of decision.alternatives; let j = index;" class="text-right">
+                                    <span *ngIf="decision.econfig.resultCalculated">{{decision.econfig.outrankingMatrix[i][j]}}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
      </div>
@@ -123,6 +141,7 @@ export class ElectreResult implements DoCheck  {
             }
         }
 
+        this.decision.econfig.outrankingMatrix = concordanceSet;
         this.buildResult(preferenceRelationVectors)
     }
 
