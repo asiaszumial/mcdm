@@ -68,7 +68,7 @@ var appComponent;
                 </table>
               </div>
               <small *ngIf="!viewModel.criteriaValid" class="text-danger">
-                Należy wprowadzić przynajmniej 1 kryterium.
+                Należy wprowadzić przynajmniej 1 i maksymalnie 15 kryteriów.
               </small>
           </div>
         </div>
@@ -94,7 +94,7 @@ var appComponent;
                 </table>
               </div>
               <small *ngIf="!viewModel.alternativeValid" class="text-danger">
-                Należy wprowadzić przynajmniej 2 warianty decyzyjne.
+                Należy wprowadzić od 2 do 15 wariantów decyzyjnych.
               </small>
           </div>
         </div>
@@ -161,8 +161,10 @@ export class App {
 
   saveDecisionModel() {
     this.viewModel.nameValid = this.formModel.name.length > 0;
-    this.viewModel.criteriaValid = this.formModel.criterias.filter((item) => item.length > 0).length >= 1;
-    this.viewModel.alternativeValid = this.formModel.alternatives.filter((item) => item.length > 0).length >= 2;
+    let cNo = this.formModel.criterias.filter((item) => item.length > 0).length;
+    let aNo = this.formModel.alternatives.filter((item) => item.length > 0).length;
+    this.viewModel.criteriaValid = cNo >= 1 && cNo <= 15;
+    this.viewModel.alternativeValid = aNo >= 2 && cNo <= 15;
     if (this.viewModel.nameValid && this.viewModel.criteriaValid && this.viewModel.alternativeValid) {
       this.decisionService.setDecision(this.formModel);
       this.currentDecision = this.formModel;

@@ -16,8 +16,6 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-  mainWindow.webContents.openDevTools();
-
   //disable menu
   Menu.setApplicationMenu(null);
 
