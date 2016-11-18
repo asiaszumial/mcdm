@@ -130,6 +130,7 @@ export class ElectreResult implements DoCheck  {
                     }
                 }
             }
+            concordanceSet[i][i] = "-";
         }
         
         let preferenceRelationVectors = [];
