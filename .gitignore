@@ -3,3 +3,4 @@ build/
 typings/
 dane.json
 badania*.json
+*.xlsx

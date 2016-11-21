@@ -182,7 +182,7 @@ export class ElectreMethod {
                   sum += this.decisionConfig.criteriaWeights[i];
               }
           }
-          if (sum < 0.9999999999999999 || sum > 1) {
+          if (sum < 0.9999999999999999 || sum > 1.0000000000000009) {
               consistent = false;
           }
       }
