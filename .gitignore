@@ -2,3 +2,4 @@ node_modules
 build/
 typings/
 dane.json
+badania*.json

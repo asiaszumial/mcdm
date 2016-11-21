@@ -15,7 +15,7 @@ import {Decision} from './model';
                     <li *ngFor="let message of decision.econfig.inconsistentMessageList">{{message}}</li>
                 </ul>
             </div>
-            <div *ngIf="decision.econfig.resultRank && decision.econfig.resultRank.length > 0">
+            <div *ngIf="decision.econfig.isValid && decision.econfig.isConsistent && decision.econfig.resultRank && decision.econfig.resultRank.length > 0">
                 <div class="col-lg-4 col-md-4 col-sm-12">
                     <table class="table table-bordered">
                         <thead>
@@ -161,7 +161,9 @@ export class ElectreResult implements DoCheck  {
         let processedItems = {};
         let count = preferenceRelationVectors.length;
         this.decision.econfig.resultRank = [];
+        let found = false;
         while (count > 0) {
+            found = false;
             let indexesToRemove = [];
             for (let i = 0; i < preferenceRelationVectors.length; i++) {
                 let currentItem = preferenceRelationVectors[i];
@@ -173,6 +175,7 @@ export class ElectreResult implements DoCheck  {
                     }
                 }
                 if (!contains) {
+                    found = true;
                     indexesToRemove.push(i);
                     if (processedItems[currentItem.item1] === undefined || processedItems[currentItem.item1] === null) {
                         processedItems[currentItem.item1] = true;
@@ -184,6 +187,14 @@ export class ElectreResult implements DoCheck  {
                         }
                     }
                 }
+            }
+
+            if (!found) {
+                setTimeout(() => {
+                    this.decision.econfig.isConsistent = false;
+                    this.decision.econfig.inconsistentMessageList.push("Nie można wyznaczyć rankingu końcowego, ponieważ wprowadzone dane są sprzeczne.");
+                }, 1);
+                break;
             }
             
             for (let i = 0; i < indexesToRemove.length; i++) {

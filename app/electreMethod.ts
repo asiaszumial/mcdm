@@ -173,7 +173,7 @@ export class ElectreMethod {
           consistent = false;
           this.decision.econfig.inconsistentMessageList.push("Próg zgodności jest poza wymaganym przedziałem wartości.");
       } else {
-          let sum = 0;
+          let sum = 0.0;
           for (let i = 0; i < this.decision.criterias.length; i++) {
               if (this.decisionConfig.criteriaWeights[i] === undefined || this.decisionConfig.criteriaWeights[i] === null) {
                   consistent = false;
@@ -182,7 +182,7 @@ export class ElectreMethod {
                   sum += this.decisionConfig.criteriaWeights[i];
               }
           }
-          if (sum !== 1) {
+          if (sum < 0.9999999999999999 || sum > 1) {
               consistent = false;
           }
       }
