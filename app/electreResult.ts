@@ -205,14 +205,15 @@ export class ElectreResult implements DoCheck  {
             count = preferenceRelationVectors.length;
         }
 
+        let resultRankCount = this.decision.econfig.resultRank.length;
         for (let i = 0; i < this.decision.alternatives.length; i++) {
             if (processedItems[i] === undefined || processedItems[i] === null) {
                 processedItems[i] = true;
-                let rankItem = this.decision.econfig.resultRank[this.decision.econfig.resultRank.length];
+                let rankItem = this.decision.econfig.resultRank[resultRankCount];
                 if (rankItem === undefined || rankItem === null) {
                     this.decision.econfig.resultRank.push(this.decision.alternatives[i]);
                 } else {
-                    rankItem += ", " + this.decision.alternatives[i];
+                    this.decision.econfig.resultRank[resultRankCount] += ", " + this.decision.alternatives[i];
                 }
             }
         }
