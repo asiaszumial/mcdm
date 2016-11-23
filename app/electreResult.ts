@@ -165,6 +165,7 @@ export class ElectreResult implements DoCheck  {
         while (count > 0) {
             found = false;
             let indexesToRemove = [];
+            let resultRankCount = this.decision.econfig.resultRank.length;
             for (let i = 0; i < preferenceRelationVectors.length; i++) {
                 let currentItem = preferenceRelationVectors[i];
                 let contains = false;
@@ -179,11 +180,11 @@ export class ElectreResult implements DoCheck  {
                     indexesToRemove.push(i);
                     if (processedItems[currentItem.item1] === undefined || processedItems[currentItem.item1] === null) {
                         processedItems[currentItem.item1] = true;
-                        let rankItem = this.decision.econfig.resultRank[this.decision.econfig.resultRank.length];
+                        let rankItem = this.decision.econfig.resultRank[resultRankCount];
                         if (rankItem === undefined || rankItem === null) {
                             this.decision.econfig.resultRank.push(this.decision.alternatives[currentItem.item1]);
                         } else {
-                            rankItem += ", " + this.decision.alternatives[currentItem.item1];
+                            this.decision.econfig.resultRank[resultRankCount] += ", " + this.decision.alternatives[currentItem.item1];
                         }
                     }
                 }
