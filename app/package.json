@@ -2,5 +2,8 @@
   "name": "mcdm",
   "version": "1.0.0",
   "description": "Multi-criteria decision making system using AHP method",
-  "main": "main.js"
+  "main": "./main.js",
+  "author": {
+    "name": "js"
+  }
 }

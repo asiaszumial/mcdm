@@ -4,3 +4,4 @@ typings/
 dane.json
 badania*.json
 *.xlsx
+dist2/

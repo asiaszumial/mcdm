@@ -2,7 +2,10 @@
   "name": "mcdm",
   "version": "1.0.0",
   "description": "Multi-criteria decision making system using AHP method",
-   "main": "index.js",
+  "main": "./app/main.js",
+  "author": {
+    "name": "js"
+  },
   "scripts": {
     "build": "webpack --progress --profile --colors --display-error-details --display-cached",
     "watch": "webpack --watch --progress --profile --colors --display-error-details --display-cached",
